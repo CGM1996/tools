@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class BaiduTtsParam {
 
-    @ApiModelProperty(value = "固定值zh。语言选择,目前只有中英文混合模式，填写固定值zh", hidden = true)
+    @ApiModelProperty(value = "语言选择,目前只有中英文混合模式，填写固定值zh", hidden = true)
     private final String lan = "ch";
 
     @ApiModelProperty(value = "客户端类型选择，web端填写固定值1", hidden = true)
@@ -30,11 +30,12 @@ public class BaiduTtsParam {
     @ApiModelProperty(value = "音量，取值0-9，默认为5中音量", example = "5")
     private int vol;
 
-    @ApiModelProperty(value = "下载的文件格式, 3：mp3(default) 4： pcm-16k 5： pcm-8k 6. wav", example = "3")
+    @ApiModelProperty(value = "下载的文件格式, 3：mp3(默认)|4： pcm-16k|5： pcm-8k|6. wav", example = "3")
     private int aue;
 
     @ApiModelProperty(value = "用户唯一标识，用来计算UV值", example = "1234567JAVA")
     private String cuid;
 
+    @ApiModelProperty(value = "部分，一段最长2000字，超长需要分段处理", example = "1")
     private int part;
 }
