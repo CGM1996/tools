@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.cgm</groupId>
-    <artifactId>starter</artifactId>
+    <artifactId>web-tools</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>starter</name>
-    <description>临时项目</description>
+    <description>网页工具</description>
 
     <properties>
         <java.version>1.8</java.version>

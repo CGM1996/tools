@@ -29,9 +29,7 @@ spring:
 
 logging:
   level:
-    com.cgm.starter.account: debug
-    com.cgm.starter.client: debug
-    com.cgm.starter.currency: debug
+    com.cgm.tools.account: debug
 
 mybatis:
   configuration:
