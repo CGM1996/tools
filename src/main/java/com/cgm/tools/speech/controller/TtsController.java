@@ -4,6 +4,7 @@ import com.cgm.tools.base.ResponseData;
 import com.cgm.tools.speech.common.DemoException;
 import com.cgm.tools.speech.dto.BaiduTtsParam;
 import com.cgm.tools.speech.service.ITtsService;
+import com.cgm.tools.speech.subtitleFile.FatalParsingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -27,7 +28,7 @@ public class TtsController {
 
     @ApiOperation("文本转语音")
     @PostMapping("/text")
-    public ResponseData textTts(HttpServletResponse response, @ApiParam(value = "参数") BaiduTtsParam param)
+    public ResponseData textTts(HttpServletResponse response, @ApiParam(value = "参数") @RequestBody BaiduTtsParam param)
             throws DemoException, IOException {
         ttsService.textTts(response, param);
         return new ResponseData();
@@ -36,7 +37,7 @@ public class TtsController {
     @ApiOperation("文件转语音")
     @PostMapping("/file")
     public ResponseData fileTts(HttpServletResponse response, @ApiParam(value = "语料文件") MultipartFile file,
-            @ApiParam(value = "参数") BaiduTtsParam param)  {
+            @ApiParam(value = "参数") BaiduTtsParam param) throws FatalParsingException, DemoException, IOException {
         ttsService.fileTts(response, file, param);
         return new ResponseData();
     }

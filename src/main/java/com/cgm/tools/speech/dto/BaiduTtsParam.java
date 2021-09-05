@@ -9,7 +9,7 @@ public class BaiduTtsParam {
     @ApiModelProperty(value = "固定值zh。语言选择,目前只有中英文混合模式，填写固定值zh", hidden = true)
     private final String lan = "ch";
 
-    @ApiModelProperty(value = "客户端类型选择，web端填写固定值1")
+    @ApiModelProperty(value = "客户端类型选择，web端填写固定值1", hidden = true)
     private final int ctp = 1;
 
     @ApiModelProperty(value = "文本，使用文件时不需要填写", example = "欢迎使用百度语音")
@@ -35,4 +35,6 @@ public class BaiduTtsParam {
 
     @ApiModelProperty(value = "用户唯一标识，用来计算UV值", example = "1234567JAVA")
     private String cuid;
+
+    private int part;
 }
