@@ -37,3 +37,8 @@ mybatis:
 
 extra:
   default-avatar: https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif
+  # 此处app_key为百度demo提供，请填写网页上申请的app_key
+  baidu-app-key: 4E1BG9lTnlSeIf1NQFlrSq6h
+  # 此处app_secret为百度demo提供，请填写网页上申请的app_secret
+  baidu-secret-key: 544ca4657ba8002e3dea3ac2f5fdd241
+

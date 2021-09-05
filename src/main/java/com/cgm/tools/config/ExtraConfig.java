@@ -14,4 +14,8 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties("extra")
 public class ExtraConfig {
     private String defaultAvatar;
+
+    private String baiduAppKey;
+
+    private String baiduSecretKey;
 }
