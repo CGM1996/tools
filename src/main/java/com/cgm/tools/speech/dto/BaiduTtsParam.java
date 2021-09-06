@@ -30,7 +30,7 @@ public class BaiduTtsParam {
     @ApiModelProperty(value = "音量，取值0-9，默认为5中音量", example = "5")
     private int vol;
 
-    @ApiModelProperty(value = "下载的文件格式, 3：mp3(默认)|4： pcm-16k|5： pcm-8k|6. wav", example = "3")
+    @ApiModelProperty(value = "下载的文件格式, 3：mp3(默认)|4：pcm-16k|5：pcm-8k|6：wav", example = "3")
     private int aue;
 
     @ApiModelProperty(value = "用户唯一标识，用来计算UV值", example = "1234567JAVA")

@@ -11,5 +11,6 @@ import java.io.IOException;
 public interface ITtsService {
     void textTts(HttpServletResponse response, BaiduTtsParam param) throws DemoException, IOException;
 
-    void fileTts(HttpServletResponse response, MultipartFile file, BaiduTtsParam param) throws IOException, FatalParsingException, DemoException;
+    void fileTts(HttpServletResponse response, MultipartFile file, BaiduTtsParam param)
+            throws IOException, FatalParsingException, DemoException;
 }

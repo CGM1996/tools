@@ -28,17 +28,17 @@ public class TtsController {
 
     @ApiOperation("文本转语音")
     @PostMapping("/text")
-    public ResponseData textTts(HttpServletResponse response, @ApiParam(value = "参数") @RequestBody BaiduTtsParam param)
+    public void textTts(HttpServletResponse response, @ApiParam(value = "参数") @RequestBody BaiduTtsParam param)
             throws DemoException, IOException {
         ttsService.textTts(response, param);
-        return new ResponseData();
     }
 
     @ApiOperation("文件转语音")
     @PostMapping("/file")
-    public ResponseData fileTts(HttpServletResponse response, @ApiParam(value = "语料文件") MultipartFile file,
-            @ApiParam(value = "参数") BaiduTtsParam param) throws FatalParsingException, DemoException, IOException {
+    public void fileTts(HttpServletResponse response,
+                                @ApiParam(value = "字幕文件（SRT,STL,SCC,XML,ASS）") MultipartFile file,
+                                @ApiParam(value = "参数") BaiduTtsParam param)
+            throws FatalParsingException, DemoException, IOException {
         ttsService.fileTts(response, file, param);
-        return new ResponseData();
     }
 }

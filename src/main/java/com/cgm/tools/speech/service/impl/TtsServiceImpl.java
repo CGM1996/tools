@@ -19,6 +19,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -88,19 +89,24 @@ public class TtsServiceImpl implements ITtsService {
         Assert.isTrue(file.getOriginalFilename() != null, ErrorCode.USER_INVALID_INPUT);
         String filename = file.getOriginalFilename();
         Assert.isTrue(filename != null, ErrorCode.SYS_INTERNAL_ERROR);
+        Assert.isTrue(filename.contains("."), ErrorCode.USER_INVALID_INPUT);
         File saveFile = this.getUniqueFile(saveDir, filename);
 
         // MultipartFile转File, 保存
         file.transferTo(saveFile);
 
-        String[] stringArray = Convert.toStringArray(saveFile.getAbsolutePath(), "SRT");
+        String format = filename.substring(filename.lastIndexOf(".") + 1);
+        String[] stringArray = Convert.toStringArray(saveFile.getAbsolutePath(), format);
+        saveFile.deleteOnExit();
         int currentLength = 0;
         int fullCount = 0;
         StringBuilder stringBuilder = new StringBuilder();
         for (String s : stringArray) {
             if (currentLength + s.length() < 2000) {
-                stringBuilder.append(s);
-                currentLength += s.length();
+                if (StringUtils.hasText(s)) {
+                    stringBuilder.append(s).append("。");
+                    currentLength += s.length() + 1;
+                }
             } else {
                 fullCount ++;
                 if (fullCount == param.getPart()) {
