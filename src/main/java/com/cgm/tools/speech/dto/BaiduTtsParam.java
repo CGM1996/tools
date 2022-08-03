@@ -6,11 +6,11 @@ import lombok.Data;
 @Data
 public class BaiduTtsParam {
 
-    @ApiModelProperty(value = "语言选择,目前只有中英文混合模式，填写固定值zh", hidden = true)
-    private final String lan = "ch";
+    @ApiModelProperty(value = "lan, 语言选择,目前只有中英文混合模式，填写固定值zh", hidden = true)
+    private static final String LAN = "ch";
 
-    @ApiModelProperty(value = "客户端类型选择，web端填写固定值1", hidden = true)
-    private final int ctp = 1;
+    @ApiModelProperty(value = "ctp, 客户端类型选择，web端填写固定值1", hidden = true)
+    private static final int CTP = 1;
 
     @ApiModelProperty(value = "文本，使用文件时不需要填写", example = "欢迎使用百度语音")
     private String tex;
@@ -38,4 +38,7 @@ public class BaiduTtsParam {
 
     @ApiModelProperty(value = "部分，一段最长2000字，超长需要分段处理", example = "1")
     private int part;
+
+    @ApiModelProperty(value = "是否合并处理，否则按照时间处理，并每句收一次费", example = "ture")
+    private boolean isMerge;
 }

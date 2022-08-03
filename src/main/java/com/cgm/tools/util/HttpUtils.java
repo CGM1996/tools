@@ -1,5 +1,7 @@
 package com.cgm.tools.util;
 
+import com.cgm.tools.speech.common.ConnUtil;
+import com.cgm.tools.speech.dto.BaiduTtsParam;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -27,6 +29,20 @@ public class HttpUtils {
         StringEntity entity = new StringEntity(requestBody, DEFAULT_CHARSET);
         httpPost.setEntity(entity);
         return doRequest(httpPost);
+    }
+
+    public static String baiduParamToString (BaiduTtsParam paramDTO) {
+        // 此处2次url encode， 确保特殊字符被正确编码
+        String params = "tex=" + ConnUtil.urlEncode(ConnUtil.urlEncode(paramDTO.getTex()));
+        params += "&per=" + paramDTO.getPer();
+        params += "&spd=" + paramDTO.getSpd();
+        params += "&pit=" + paramDTO.getPit();
+        params += "&vol=" + paramDTO.getVol();
+        params += "&cuid=" + paramDTO.getCuid();
+        params += "&tok=" + paramDTO.getTok();
+        params += "&aue=" + paramDTO.getAue();
+        params += "&lan=zh&ctp=1";
+        return params;
     }
 
     private static String doRequest(HttpRequestBase requestBase) {

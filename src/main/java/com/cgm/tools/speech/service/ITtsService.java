@@ -2,6 +2,7 @@ package com.cgm.tools.speech.service;
 
 import com.cgm.tools.speech.common.DemoException;
 import com.cgm.tools.speech.dto.BaiduTtsParam;
+import com.cgm.tools.speech.dto.VideoAddSpeechParam;
 import com.cgm.tools.speech.subtitleFile.FatalParsingException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,4 +14,6 @@ public interface ITtsService {
 
     void fileTts(HttpServletResponse response, MultipartFile file, BaiduTtsParam param)
             throws IOException, FatalParsingException, DemoException;
+
+    void videoAddSpeech(HttpServletResponse response, MultipartFile video, MultipartFile captions, VideoAddSpeechParam param) throws IOException;
 }

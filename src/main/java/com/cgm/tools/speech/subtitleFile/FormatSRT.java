@@ -218,7 +218,7 @@ public class FormatSRT implements TimedTextFileFormat {
     /**
      * This method cleans caption.content of XML and parses line breaks.
      */
-    public String[] cleanTextForSRT(Caption current) {
+    public static String[] cleanTextForSRT(Caption current) {
         String[] lines;
         String text = current.content;
         //add line breaks
