@@ -42,3 +42,5 @@ extra:
   # 此处app_secret为百度demo提供，请填写网页上申请的app_secret
   baidu-secret-key: 544ca4657ba8002e3dea3ac2f5fdd241
 
+  output-folder: C:\Users\Public\Videos\
+

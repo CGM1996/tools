@@ -4,7 +4,6 @@ import com.cgm.tools.base.BaseException;
 import com.cgm.tools.base.Constant;
 import com.cgm.tools.base.ErrorCode;
 import com.cgm.tools.config.ExtraConfig;
-import com.cgm.tools.speech.JavaCVMain;
 import com.cgm.tools.speech.common.ConnUtil;
 import com.cgm.tools.speech.common.DemoException;
 import com.cgm.tools.speech.common.TokenHolder;
@@ -14,6 +13,7 @@ import com.cgm.tools.speech.service.ITtsService;
 import com.cgm.tools.speech.subtitleFile.*;
 import com.cgm.tools.util.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Service
@@ -149,7 +150,7 @@ public class TtsServiceImpl implements ITtsService {
         // MultipartFile转File, 保存
         captions.transferTo(captionsFile);
 
-        String output = "C:\\Users\\cgm\\Desktop\\Kube Manager录屏素材\\web-output.mp3";
+        String output = extraConfig.getOutputFolder() + "web-output.mp3";
         File outputFile = new File(output);
 
         try (FrameRecorder recorder = new FFmpegFrameRecorder(output, 1)) {
@@ -168,8 +169,11 @@ public class TtsServiceImpl implements ITtsService {
                 String[] lines = FormatSRT.cleanTextForSRT(current);
                 int audioPerFrameMills = 36;
                 int startFrameIndex = start.getMseconds() / audioPerFrameMills;
-                try (FFmpegFrameGrabber audioGrabber = new FFmpegFrameGrabber(JavaCVMain.getSeqAudioIS(lines, param))) {
-                    log.info("Channels: {}", audioGrabber.getAudioChannels());
+                log.info("Current text: {}", lines[0]);
+
+                this.getSeqAudioIS(lines, param);
+                File tempFile = new File(extraConfig.getOutputFolder() + "temp.mp3");
+                try (FFmpegFrameGrabber audioGrabber = new FFmpegFrameGrabber(tempFile)) {
                     audioGrabber.start();
                     while ((audioFrame = audioGrabber.grab()) != null) {
                         while (currentFrameIndex < startFrameIndex) {
@@ -181,8 +185,6 @@ public class TtsServiceImpl implements ITtsService {
                     }
                     audioGrabber.stop();
                 }
-
-
             }
 
             recorder.flush();
@@ -208,7 +210,8 @@ public class TtsServiceImpl implements ITtsService {
     }
 
     @Override
-    public void videoAddSpeech(HttpServletResponse response, MultipartFile video, MultipartFile captions, VideoAddSpeechParam param) throws IOException {
+    public void videoAddSpeech(HttpServletResponse response, MultipartFile video, MultipartFile captions,
+                               VideoAddSpeechParam param) throws IOException {
         String saveDir = System.getProperty(ENV_USER_DIR) + "/";
         Assert.isTrue(video.getOriginalFilename() != null, ErrorCode.USER_INVALID_INPUT);
         String videoFilename = video.getOriginalFilename();
@@ -231,7 +234,7 @@ public class TtsServiceImpl implements ITtsService {
             return;
         }
         FFmpegFrameGrabber audioGrabber = null;
-        String output = "C:\\Users\\cgm\\Desktop\\Kube Manager录屏素材\\web-output.mp4";
+        String output = extraConfig.getOutputFolder() + "web-output.mp4";
         File outputFile = new File(output);
 
         try (FFmpegFrameGrabber videoGrabber = new FFmpegFrameGrabber(videoFilename);
@@ -257,7 +260,7 @@ public class TtsServiceImpl implements ITtsService {
                 String[] lines = FormatSRT.cleanTextForSRT(current);
                 int audioPerFrameMills = 36;
                 int startFrameIndex = start.getMseconds() / audioPerFrameMills;
-                audioGrabber = new FFmpegFrameGrabber(JavaCVMain.getSeqAudioIS(lines));
+                audioGrabber = new FFmpegFrameGrabber(this.getSeqAudioIS(lines));
                 log.info("Channels: {}", audioGrabber.getAudioChannels());
                 audioGrabber.start();
                 while ((audioFrame = audioGrabber.grab()) != null) {
@@ -356,5 +359,58 @@ public class TtsServiceImpl implements ITtsService {
 
     private String getHeaderValue(String content) throws UnsupportedEncodingException {
         return "attachment;filename=" + URLEncoder.encode(content, DEFAULT_CHARSET);
+    }
+
+    private InputStream getSeqAudioIS(String[] textArray) throws DemoException, IOException {
+        String appKey = extraConfig.getBaiduAppKey();
+        String secretKey = extraConfig.getBaiduSecretKey();
+        TokenHolder holder = new TokenHolder(appKey, secretKey, TokenHolder.ASR_SCOPE);
+        holder.refresh();
+        String token = holder.getToken();
+        BaiduTtsParam param = new BaiduTtsParam();
+        param.setTok(token);
+        param.setPer(5003);
+        param.setSpd(5);
+        param.setPit(5);
+        param.setVol(5);
+        param.setCuid("JAVA12345678");
+        param.setAue(3);
+
+        return getSeqAudioIS(textArray, param);
+    }
+
+    private InputStream getSeqAudioIS(String[] textArray, BaiduTtsParam paramDTO) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        for (String text : textArray) {
+            if (!StringUtils.hasText(text)) {
+                continue;
+            }
+            sb.append(text);
+        }
+        if (sb.length() < 1) {
+            throw new IllegalArgumentException("No text!");
+        }
+        paramDTO.setTex(sb.toString());
+        String params = HttpUtils.baiduParamToString(paramDTO);
+
+        HttpPost httpPost = new HttpPost(API_URL);
+        StringEntity entity = new StringEntity(params, StandardCharsets.UTF_8);
+        httpPost.setEntity(entity);
+        try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
+            CloseableHttpResponse closeableHttpResponse = httpClient.execute(httpPost);
+            InputStream responseContent = closeableHttpResponse.getEntity().getContent();
+
+            String contentType = closeableHttpResponse.getEntity().getContentType().getValue();
+            if (contentType.contains("audio/")) {
+                File tempFile = new File(extraConfig.getOutputFolder() + "temp.mp3");
+                FileUtils.copyInputStreamToFile(responseContent, tempFile);
+                return responseContent;
+            } else {
+                log.error("ERROR: content-type= {}", contentType);
+                byte[] result = ConnUtil.getInputStreamContent(responseContent);
+                log.error(new String(result));
+                throw new BaseException(ErrorCode.SYS_INTERNAL_ERROR);
+            }
+        }
     }
 }

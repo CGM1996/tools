@@ -18,4 +18,6 @@ public class ExtraConfig {
     private String baiduAppKey;
 
     private String baiduSecretKey;
+
+    private String outputFolder;
 }
